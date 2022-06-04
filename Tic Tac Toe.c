@@ -1,6 +1,6 @@
 /*
  * Tic Tac Toe
- * Functions as a two player game of Tic Tac Toe. Players alternate placing X's and O's until
+ * A two player game of Tic Tac Toe. Players alternate placing their mark (X or O) until
  * no moves are left (draw) or 3 marks in a row (win!). 
  * 
  * Requires MinGW compiler (for example) or Cygwin with extras. 
@@ -24,28 +24,29 @@ char grid[SIZE][SIZE] = {
 };
 
 void printGame();
-int getMove(bool p1Turn);
+int getMove(bool isP1Turn);
 bool isWin();
 
 int main() {
     // Play game
-    bool p1Turn = true;
+    bool isP1Turn = true;
     int movesLeft = SIZE * SIZE;
     do {
         printGame();
-        int move = getMove(p1Turn);
-        if (move != -1) {
-            // valid move
-            grid[move / SIZE][move % SIZE] = p1Turn ? P1_MARK : P2_MARK;
-            p1Turn = !p1Turn;
-            movesLeft--;
+        int move = getMove(isP1Turn);
+        if (move != -1) { 
+            // is valid move
+            // set mark at move location
+            grid[move / SIZE][move % SIZE] = isP1Turn ? P1_MARK : P2_MARK; 
+            isP1Turn = !isP1Turn; // swap turns
+            movesLeft--; 
         }
     } while (movesLeft > 0 && !isWin());
 
     // Print results
-    printGame();
+    printGame(); // print final move
     if (isWin()) {
-        printf("==>Player %c won!\n", p1Turn ? '2' : '1');
+        printf("==>Player %c won!\n", isP1Turn ? '2' : '1');
     } else {
         printf("==>Game draw\n");
     }
@@ -77,30 +78,30 @@ void printGame() {
 
 // Prompts terminal for a move and returns it. Invalid moves are checked and execution pauses
 // with error message
-int getMove(bool p1Turn) {
+int getMove(bool isP1Turn) {
     // prompt
-    printf("Player %c, enter a number: ", p1Turn ? '1' : '2');
+    printf("Player %c, enter a number: ", isP1Turn ? '1' : '2');
     
     // get move
     int move;
     scanf("%d", &move);
     move--;
 
-    // check validity, return only valid moves
+    // check validity, returning only valid moves
     if (move >= 0 && move < SIZE * SIZE) {
         char mark = grid[move / SIZE][move % SIZE];
-        if (mark != P1_MARK && mark != P2_MARK) {
+        if (!(mark == P1_MARK || mark == P2_MARK)) {
             return move;
         }
     }
 
-    // Error msg with false return flag
+    // Error msg and pause, returning error code 
     printf("Invalid move\n");
     getch(); // pause until input (requires MinGW or Cygwin with extras)
     return -1;
 }
 
-// Tests for wins, returning true upon win discovery
+// Tests for wins, true for any 3 of the same mark in a row.
 bool isWin() {
     // horizontal
     for (int row = 0; row < SIZE; row++) {
